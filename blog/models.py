@@ -11,7 +11,10 @@ class PostQuerySet(models.QuerySet):
 
     def fetch_with_comments_count(self):
         posts_ids = [post.id for post in self]
-        posts_with_comments = Post.objects.filter(id__in=posts_ids).annotate(comments_amount=Count('comments'))
+        posts_with_comments = (
+            Post.objects.filter(id__in=posts_ids)
+            .annotate(comments_amount=Count('comments'))
+        )
         ids_and_comments = posts_with_comments.values_list('id', 'comments_amount')
         count_for_id = dict(ids_and_comments)
         for post in self:
@@ -30,14 +33,19 @@ class TagQuerySet(models.QuerySet):
 
 
 class Post(models.Model):
-    title = models.CharField("Заголовок", max_length=200)
-    text = models.TextField("Текст")
-    slug = models.SlugField("Название в виде url", max_length=200)
-    image = models.ImageField("Картинка")
-    published_at = models.DateTimeField("Дата и время публикации")
-    author = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name="Автор", limit_choices_to={'is_staff': True})
-    likes = models.ManyToManyField(User, related_name="liked_posts", verbose_name="Кто лайкнул", blank=True)
-    tags = models.ManyToManyField("Tag", related_name="posts", verbose_name="Теги")
+    title = models.CharField('Заголовок', max_length=200)
+    text = models.TextField('Текст')
+    slug = models.SlugField('Название в виде url', max_length=200)
+    image = models.ImageField('Картинка')
+    published_at = models.DateTimeField('Дата и время публикации')
+    author = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        verbose_name='Автор',
+        limit_choices_to={'is_staff': True}
+    )
+    likes = models.ManyToManyField(User, related_name='liked_posts', verbose_name='Кто лайкнул', blank=True)
+    tags = models.ManyToManyField('Tag', related_name='posts', verbose_name='Теги')
 
     objects = PostQuerySet.as_manager()
 
@@ -54,12 +62,12 @@ class Post(models.Model):
 
 
 class Tag(models.Model):
-    title = models.CharField("Тег", max_length=20, unique=True)
+    title = models.CharField('Тег', max_length=20, unique=True)
 
     objects = TagQuerySet.as_manager()
 
     class Meta:
-        ordering = ["title"]
+        ordering = ['title']
         verbose_name = 'тег'
         verbose_name_plural = 'теги'
 
@@ -74,10 +82,15 @@ class Tag(models.Model):
 
 
 class Comment(models.Model):
-    post = models.ForeignKey("Post", related_name="comments", on_delete=models.CASCADE, verbose_name="Пост, к которому написан")
-    author = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name="Автор")
-    text = models.TextField("Текст комментария")
-    published_at = models.DateTimeField("Дата и время публикации")
+    post = models.ForeignKey(
+        'Post',
+        related_name='comments',
+        on_delete=models.CASCADE,
+        verbose_name='Пост, к которому написан'
+    )
+    author = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name='Автор')
+    text = models.TextField('Текст комментария')
+    published_at = models.DateTimeField('Дата и время публикации')
 
     class Meta:
         ordering = ['published_at']
@@ -85,4 +98,4 @@ class Comment(models.Model):
         verbose_name_plural = 'комментарии'
 
     def __str__(self):
-        return f"{self.author.username} under {self.post.title}"
+        return f'{self.author.username} under {self.post.title}'

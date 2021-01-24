@@ -5,12 +5,12 @@ from blog.models import Comment, Post, Tag
 
 @admin.register(Post)
 class PostAdmin(admin.ModelAdmin):
-    raw_id_fields = ["author", "likes", "tags"]
+    raw_id_fields = ['author', 'likes', 'tags']
 
 
 @admin.register(Comment)
 class CommentAdmin(admin.ModelAdmin):
-    raw_id_fields = ["author", "post"]
+    raw_id_fields = ['author', 'post']
 
 
 admin.site.register(Tag)
